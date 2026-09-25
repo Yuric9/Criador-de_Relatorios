@@ -169,16 +169,27 @@ def build_report(data: ReportData, output_path: str, progress_callback):
 
 class ReportApp(tk.Tk):
     def __init__(self):
-        super().__init__(); self.title(APP_TITLE); self.geometry("1120x790"); self.minsize(980,700); self.configure(bg=BRAND_BG)
+        super().__init__(); self.title(APP_TITLE); self.geometry("1080x720"); self.minsize(920,650); self.configure(bg=BRAND_BG)
         self.photos=[]; self.events=queue.Queue(); self.generating=False; self._configure_styles(); self._build_ui(); self.after(80,self._poll_events)
     def _configure_styles(self):
         s=ttk.Style(self)
         try:s.theme_use("clam")
         except tk.TclError:pass
-        s.configure("App.TFrame",background=BRAND_BG); s.configure("Card.TFrame",background="#FFFFFF",relief="solid",borderwidth=1)
-        s.configure("Title.TLabel",background=BRAND_BG,foreground=BRAND_DARK,font=(UI_FONT,18,"bold")); s.configure("Subtitle.TLabel",background=BRAND_BG,foreground=BRAND_MUTED,font=(UI_FONT,9))
-        s.configure("CardTitle.TLabel",background="#FFFFFF",foreground=BRAND_DARK,font=(UI_FONT,12,"bold")); s.configure("CardText.TLabel",background="#FFFFFF",foreground=BRAND_MUTED,font=(UI_FONT,9)); s.configure("Field.TLabel",background="#FFFFFF",foreground=BRAND_TEXT,font=(UI_FONT,9,"bold"))
-        s.configure("TEntry",padding=(9,7),font=(UI_FONT,9)); s.configure("TButton",padding=(12,8),font=(UI_FONT,9,"bold")); s.configure("Primary.TButton",background=BRAND_DARK,foreground="#FFFFFF",borderwidth=0,padding=(15,10)); s.map("Primary.TButton",background=[("active",BRAND_GREEN),("disabled","#AAAAAA")],foreground=[("disabled","#EEEEEE")]); s.configure("Secondary.TButton",background="#FFFFFF",foreground=BRAND_DARK,borderwidth=1,padding=(12,8)); s.map("Secondary.TButton",background=[("active","#EAF2EE")]); s.configure("TRadiobutton",background="#FFFFFF",foreground=BRAND_TEXT,font=(UI_FONT,9),padding=4); s.configure("Horizontal.TProgressbar",troughcolor="#E5ECE8",background=BRAND_GREEN,bordercolor="#E5ECE8",lightcolor=BRAND_GREEN,darkcolor=BRAND_GREEN,thickness=9)
+        s.configure("App.TFrame",background=BRAND_BG)
+        s.configure("Card.TFrame",background="#FFFFFF",relief="solid",borderwidth=1)
+        s.configure("Title.TLabel",background=BRAND_BG,foreground=BRAND_DARK,font=(UI_FONT,18,"bold"))
+        s.configure("Subtitle.TLabel",background=BRAND_BG,foreground=BRAND_MUTED,font=(UI_FONT,9))
+        s.configure("CardTitle.TLabel",background="#FFFFFF",foreground=BRAND_DARK,font=(UI_FONT,11,"bold"))
+        s.configure("CardText.TLabel",background="#FFFFFF",foreground=BRAND_MUTED,font=(UI_FONT,8))
+        s.configure("Field.TLabel",background="#FFFFFF",foreground=BRAND_TEXT,font=(UI_FONT,9,"bold"))
+        s.configure("TEntry",padding=(10,8),font=(UI_FONT,10))
+        s.configure("TButton",padding=(12,8),font=(UI_FONT,9,"bold"))
+        s.configure("Primary.TButton",background=BRAND_DARK,foreground="#FFFFFF",borderwidth=0,padding=(15,10))
+        s.map("Primary.TButton",background=[("active",BRAND_GREEN),("disabled","#AAAAAA")],foreground=[("disabled","#EEEEEE")])
+        s.configure("Secondary.TButton",background="#FFFFFF",foreground=BRAND_DARK,borderwidth=1,padding=(12,8))
+        s.map("Secondary.TButton",background=[("active","#EAF2EE")])
+        s.configure("TRadiobutton",background="#FFFFFF",foreground=BRAND_TEXT,font=(UI_FONT,9),padding=4)
+        s.configure("Horizontal.TProgressbar",troughcolor="#E5ECE8",background=BRAND_GREEN,bordercolor="#E5ECE8",lightcolor=BRAND_GREEN,darkcolor=BRAND_GREEN,thickness=8)
     def _card(self,parent,title,description,row,column,padx=8,pady=8):
         f=ttk.Frame(parent,style="Card.TFrame",padding=(18,16)); f.grid(row=row,column=column,sticky="nsew",padx=padx,pady=pady)
         ttk.Label(f,text=title,style="CardTitle.TLabel").pack(anchor="w")
@@ -187,23 +198,73 @@ class ReportApp(tk.Tk):
         content.pack(fill="both",expand=True)
         return content
     def _build_ui(self):
-        brand=tk.Frame(self,bg=BRAND_DARK,height=72); brand.pack(fill="x"); brand.pack_propagate(False); left=tk.Frame(brand,bg=BRAND_DARK); left.pack(side="left",padx=22,pady=10); tk.Label(left,text="Departamento de Engenharia",bg=BRAND_DARK,fg="white",font=(UI_FONT,13,"bold")).pack(anchor="w"); tk.Label(left,text="S.O.S — Sistema de Ordens de Manutenção  •  Relatório Fotográfico",bg=BRAND_DARK,fg="#D8EAE2",font=(UI_FONT,8)).pack(anchor="w"); tk.Label(brand,text="YURI CESAR",bg=BRAND_DARK,fg="white",font=(UI_FONT,9,"bold")).pack(side="right",padx=22); tk.Frame(self,bg=BRAND_ACCENT,height=3).pack(fill="x")
-        outer=ttk.Frame(self,style="App.TFrame",padding=(26,22)); outer.pack(fill="both",expand=True); head=ttk.Frame(outer,style="App.TFrame"); head.pack(fill="x",pady=(0,12)); tk.Label(head,text="▣",bg=BRAND_DARK,fg="white",font=(UI_FONT,14,"bold"),width=3,height=1).pack(side="left",padx=(0,10)); tb=ttk.Frame(head,style="App.TFrame"); tb.pack(side="left"); ttk.Label(tb,text="Relatório Fotográfico",style="Title.TLabel").pack(anchor="w"); ttk.Label(tb,text="Gere relatórios em Word (.docx) no padrão do Relatório de Visita Técnica.",style="Subtitle.TLabel").pack(anchor="w",pady=(2,0))
-        body=ttk.Frame(outer,style="App.TFrame"); body.pack(fill="both",expand=True); body.columnconfigure(0,weight=1); body.columnconfigure(1,weight=1); body.rowconfigure(0,weight=1)
-        data=self._card(body,"Dados do Relatório","Informe a data e o nome da obra que aparecerão no relatório.",0,0); data.columnconfigure(0,weight=1); data.columnconfigure(1,weight=1)
+        brand=tk.Frame(self,bg=BRAND_DARK,height=68); brand.pack(fill="x"); brand.pack_propagate(False)
+        left=tk.Frame(brand,bg=BRAND_DARK); left.pack(side="left",padx=22,pady=10)
+        tk.Label(left,text="Departamento de Engenharia",bg=BRAND_DARK,fg="white",font=(UI_FONT,13,"bold")).pack(anchor="w")
+        tk.Label(left,text="Sistema Criador de Relatórios",bg=BRAND_DARK,fg="#D8EAE2",font=(UI_FONT,9)).pack(anchor="w",pady=(2,0))
+        tk.Frame(self,bg=BRAND_ACCENT,height=3).pack(fill="x")
+
+        outer=ttk.Frame(self,style="App.TFrame",padding=(24,18)); outer.pack(fill="both",expand=True)
+        head=ttk.Frame(outer,style="App.TFrame"); head.pack(fill="x",pady=(0,12))
+        tk.Label(head,text="▣",bg=BRAND_DARK,fg="white",font=(UI_FONT,14,"bold"),width=3,height=1).pack(side="left",padx=(0,10))
+        tb=ttk.Frame(head,style="App.TFrame"); tb.pack(side="left")
+        ttk.Label(tb,text="Relatório Fotográfico",style="Title.TLabel").pack(anchor="w")
+        ttk.Label(tb,text="Preencha os dados, adicione as fotos e gere seu relatório em Word.",style="Subtitle.TLabel").pack(anchor="w",pady=(2,0))
+
+        body=ttk.Frame(outer,style="App.TFrame"); body.pack(fill="both",expand=True)
+        body.columnconfigure(0,weight=1); body.columnconfigure(1,weight=1)
+        body.rowconfigure(0,weight=3); body.rowconfigure(1,weight=2)
+
+        data=self._card(body,"Dados do relatório","Informe a data e o nome da obra.",0,0,padx=6,pady=6)
+        data.columnconfigure(0,weight=1); data.columnconfigure(1,weight=2)
         self.vars={k:tk.StringVar() for k in ["date","obra"]}
-        ttk.Label(data,text="Data",style="Field.TLabel").grid(row=0,column=0,sticky="w",padx=4,pady=(4,5))
-        e=ttk.Entry(data,textvariable=self.vars["date"]); e.grid(row=1,column=0,sticky="ew",padx=4,pady=(0,9)); self._add_placeholder(e,"Ex: 25/09/2026")
-        ttk.Label(data,text="Nome da Obra",style="Field.TLabel").grid(row=0,column=1,sticky="w",padx=4,pady=(4,5))
-        e=ttk.Entry(data,textvariable=self.vars["obra"]); e.grid(row=1,column=1,sticky="ew",padx=4,pady=(0,9)); self._add_placeholder(e,"Ex: Reforma da Escola Municipal")
-        data.rowconfigure(2,weight=1)
-        photo=self._card(body,"Fotos","JPG ou PNG. As imagens são ajustadas proporcionalmente, sem distorção.",0,1); photo.columnconfigure(0,weight=1); ttk.Button(photo,text="▧  Selecionar Fotos",style="Primary.TButton",command=self.select_photos).grid(row=0,column=0,sticky="w",pady=(0,10)); self.photo_count_label=ttk.Label(photo,text="Nenhuma foto selecionada",style="CardText.TLabel"); self.photo_count_label.grid(row=0,column=1,sticky="e",padx=(10,0))
-        lf=ttk.Frame(photo,style="Card.TFrame"); lf.grid(row=1,column=0,columnspan=2,sticky="nsew"); lf.columnconfigure(0,weight=1); lf.rowconfigure(0,weight=1); self.photo_list=tk.Listbox(lf,height=13,borderwidth=0,highlightthickness=0,bg="#FFFFFF",fg=BRAND_TEXT,selectbackground="#DDEBE4",selectforeground=BRAND_DARK,activestyle="none",font=(UI_FONT,9)); self.photo_list.grid(row=0,column=0,sticky="nsew"); sb=ttk.Scrollbar(lf,orient="vertical",command=self.photo_list.yview); sb.grid(row=0,column=1,sticky="ns"); self.photo_list.configure(yscrollcommand=sb.set)
-        layout=self._card(body,"Layout da Página","4 fotos por página reproduz o padrão do PDF de referência.",1,0); layout.columnconfigure(0,weight=1); layout.columnconfigure(1,weight=1); self.layout_var=tk.IntVar(value=4)
-        opts=[(2,"2 fotos por página","1 coluna × 2 linhas"),(4,"4 fotos por página","2 colunas × 2 linhas"),(6,"6 fotos por página","2 colunas × 3 linhas"),(8,"8 fotos por página","2 colunas × 4 linhas")]
+        ttk.Label(data,text="Data",style="Field.TLabel").grid(row=0,column=0,sticky="w",padx=4,pady=(3,4))
+        e=ttk.Entry(data,textvariable=self.vars["date"]); e.grid(row=1,column=0,sticky="ew",padx=4,pady=(0,10)); self._add_placeholder(e,"Ex: 25/09/2026")
+        ttk.Label(data,text="Nome da Obra",style="Field.TLabel").grid(row=0,column=1,sticky="w",padx=4,pady=(3,4))
+        e=ttk.Entry(data,textvariable=self.vars["obra"]); e.grid(row=1,column=1,sticky="ew",padx=4,pady=(0,10)); self._add_placeholder(e,"Ex: Reforma da Escola Municipal")
+        tk.Label(data,text="Essas informações aparecerão no cabeçalho do documento.",bg="#FFFFFF",fg=BRAND_MUTED,font=(UI_FONT,8)).grid(row=2,column=0,columnspan=2,sticky="w",padx=4,pady=(8,0))
+
+        photo=self._card(body,"Fotos","Adicione as imagens que farão parte do relatório.",0,1,padx=6,pady=6)
+        photo.columnconfigure(0,weight=1); photo.rowconfigure(1,weight=1)
+        ttk.Button(photo,text="＋  Adicionar fotos",style="Primary.TButton",command=self.select_photos).grid(row=0,column=0,sticky="w",pady=(0,8))
+        self.photo_count_label=ttk.Label(photo,text="0 fotos adicionadas",style="CardText.TLabel"); self.photo_count_label.grid(row=0,column=1,sticky="e",padx=(10,0))
+        lf=ttk.Frame(photo,style="Card.TFrame"); lf.grid(row=1,column=0,columnspan=2,sticky="nsew")
+        lf.columnconfigure(0,weight=1); lf.rowconfigure(0,weight=1)
+        self.photo_list=tk.Listbox(lf,height=7,borderwidth=0,highlightthickness=0,bg="#FAFCFB",fg=BRAND_TEXT,selectbackground="#DDEBE4",selectforeground=BRAND_DARK,activestyle="none",font=(UI_FONT,9))
+        self.photo_list.grid(row=0,column=0,sticky="nsew")
+        sb=ttk.Scrollbar(lf,orient="vertical",command=self.photo_list.yview); sb.grid(row=0,column=1,sticky="ns")
+        self.photo_list.configure(yscrollcommand=sb.set)
+        self.photo_empty_label=tk.Label(lf,text="📷\n\nNenhuma foto adicionada\nClique em “＋ Adicionar fotos” para começar.",bg="#FAFCFB",fg=BRAND_MUTED,font=(UI_FONT,9),justify="center")
+        self.photo_empty_label.place(relx=0.5,rely=0.5,anchor="center")
+
+        layout=self._card(body,"Layout da página","Escolha quantas fotos serão exibidas em cada página.",1,0,padx=6,pady=6)
+        layout.columnconfigure(0,weight=1); layout.columnconfigure(1,weight=1); self.layout_var=tk.IntVar(value=4)
+        opts=[(2,"2 fotos","1 × 2"),(4,"4 fotos","2 × 2"),(6,"6 fotos","2 × 3"),(8,"8 fotos","2 × 4")]
+        self.layout_boxes={}
         for i,(v,t,sub) in enumerate(opts):
-            r,c=divmod(i,2); box=tk.Frame(layout,bg="#FFFFFF",highlightbackground=BRAND_BORDER,highlightthickness=1); box.grid(row=r,column=c,sticky="ew",padx=4,pady=4); ttk.Radiobutton(box,text=t,value=v,variable=self.layout_var).pack(anchor="w",padx=7,pady=(7,0)); tk.Label(box,text=sub,bg="#FFFFFF",fg=BRAND_MUTED,font=(UI_FONT,8)).pack(anchor="w",padx=28,pady=(0,7))
-        action=self._card(body,"Gerar relatório","O documento será criado em A4, com cabeçalho e grade no padrão do PDF enviado.",1,1); self.progress_label=ttk.Label(action,text="Aguardando fotos",style="CardText.TLabel"); self.progress_label.pack(anchor="w",pady=(2,6)); self.progress=ttk.Progressbar(action,mode="determinate",maximum=100,style="Horizontal.TProgressbar"); self.progress.pack(fill="x",pady=(0,12)); self.generate_button=ttk.Button(action,text="▣  Gerar Relatório e Salvar",style="Primary.TButton",command=self.generate_report); self.generate_button.pack(anchor="e")
+            r,c=divmod(i,2)
+            box=tk.Frame(layout,bg="#FFFFFF",highlightbackground=BRAND_BORDER,highlightthickness=1,cursor="hand2")
+            box.grid(row=r,column=c,sticky="ew",padx=4,pady=3)
+            self.layout_boxes[v]=box
+            ttk.Radiobutton(box,text=t,value=v,variable=self.layout_var,command=self._refresh_layout_selection).pack(anchor="w",padx=7,pady=(5,0))
+            tk.Label(box,text=sub,bg="#FFFFFF",fg=BRAND_MUTED,font=(UI_FONT,8)).pack(anchor="w",padx=28,pady=(0,5))
+            box.bind("<Button-1>",lambda _,value=v:self._choose_layout(value))
+        self._refresh_layout_selection()
+
+        action=self._card(body,"Gerar relatório","Quando estiver tudo pronto, crie o documento Word.",1,1,padx=6,pady=6)
+        self.progress_label=ttk.Label(action,text="Adicione fotos para começar.",style="CardText.TLabel"); self.progress_label.pack(anchor="w",pady=(2,6))
+        self.progress=ttk.Progressbar(action,mode="determinate",maximum=100,style="Horizontal.TProgressbar"); self.progress.pack(fill="x",pady=(0,10))
+        self.generate_button=ttk.Button(action,text="▣  Gerar relatório",style="Primary.TButton",command=self.generate_report); self.generate_button.pack(anchor="e")
+
+    def _choose_layout(self,value):
+        self.layout_var.set(value)
+        self._refresh_layout_selection()
+
+    def _refresh_layout_selection(self):
+        for value,box in self.layout_boxes.items():
+            selected=value==self.layout_var.get()
+            box.configure(highlightbackground=BRAND_DARK if selected else BRAND_BORDER,highlightthickness=2 if selected else 1)
+
     def _add_placeholder(self,entry,text):
         entry.insert(0,text); entry.configure(foreground=BRAND_MUTED)
         def focus_in(_):
@@ -218,7 +279,9 @@ class ReportApp(tk.Tk):
         if not files:return
         self.photos=list(files); self.photo_list.delete(0,"end")
         for i,p in enumerate(self.photos,1):self.photo_list.insert("end",f"Foto {i:02d}  •  {Path(p).name}")
-        self.photo_count_label.config(text=f"{len(self.photos)} foto(s) selecionada(s)"); self.progress_label.config(text=f"Pronto para processar {len(self.photos)} foto(s)")
+        self.photo_empty_label.place_forget()
+        self.photo_count_label.config(text=f"{len(self.photos)} fotos adicionadas")
+        self.progress_label.config(text=f"{len(self.photos)} fotos prontas para gerar o relatório.")
     def generate_report(self):
         if self.generating:return
         if not self.photos:messagebox.showwarning(APP_TITLE,"Selecione pelo menos uma foto.");return
@@ -239,7 +302,7 @@ class ReportApp(tk.Tk):
                 if kind=="progress":
                     _,n,total,name=ev; self.progress["value"]=n/total*100; self.progress_label.config(text=f"Processando foto {n} de {total}...  {name}")
                 elif kind=="done":
-                    self.generating=False; self.generate_button.state(["!disabled"]); self.progress["value"]=100; self.progress_label.config(text="Relatório concluído."); messagebox.showinfo(APP_TITLE,f"Relatório criado com sucesso:\n\n{ev[1]}")
+                    self.generating=False; self.generate_button.state(["!disabled"]); self.progress["value"]=100; self.progress_label.config(text="✓ Relatório concluído com sucesso."); messagebox.showinfo(APP_TITLE,f"Relatório criado com sucesso:\n\n{ev[1]}")
                 else:
                     self.generating=False; self.generate_button.state(["!disabled"]); self.progress_label.config(text="Erro ao gerar relatório."); messagebox.showerror(APP_TITLE,f"Não foi possível gerar o relatório:\n\n{ev[1]}")
         except queue.Empty:pass

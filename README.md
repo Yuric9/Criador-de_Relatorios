@@ -16,3 +16,6 @@ Aplicativo desktop portátil para geração de Relatórios Fotográficos em Word
 py -m pip install -r requirements.txt
 py -m PyInstaller --onefile --noconsole --name RelatorioFotografico relatorio_fotografico.py
 ```
+
+## Build automático
+O GitHub Actions gera automaticamente o executável Windows `RelatorioFotografico.exe` a cada atualização da branch `main`.

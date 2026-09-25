@@ -38,11 +38,8 @@ GRID = "A7A7A7"
 
 @dataclass
 class ReportData:
-    company: str
-    title: str
-    inspector: str
     date: str
-    location: str
+    obra: str
     photos_per_page: int
     image_paths: list[str]
 
@@ -113,7 +110,7 @@ def add_header_table(header, data: ReportData, first_page: bool):
             p._element.getparent().remove(p._element)
     table = header.add_table(rows=3 if first_page else 2, cols=1, width=Inches(7.97))
     table.autofit = False; set_table_borders(table, GRID, "8")
-    texts = ["RELATÓRIO DE VISITA TÉCNICA", (data.location or "LOCAL NÃO INFORMADO").upper()]
+    texts = ["RELATÓRIO DE VISITA TÉCNICA", (data.obra or "NOME DA OBRA").upper()]
     if first_page:
         texts.append(f"Registro Fotográfico - {data.date or ''}".strip())
     heights = [0.62, 0.34, 0.30] if first_page else [0.62, 0.34]
@@ -166,7 +163,7 @@ def add_grid(doc, photos, per_page, progress_callback):
 
 def build_report(data: ReportData, output_path: str, progress_callback):
     doc=Document(); section=doc.sections[0]; configure_section(section,data)
-    core=doc.core_properties; core.title=data.title or "Relatório de Visita Técnica"; core.subject="Registro Fotográfico"; core.author=data.inspector or data.company or "S.O.S"
+    core=doc.core_properties; core.title="Relatório Fotográfico"; core.subject="Registro Fotográfico"; core.author="Sistema Criador de Relatórios"
     add_grid(doc,data.image_paths,data.photos_per_page,progress_callback)
     doc.save(output_path)
 
@@ -193,12 +190,13 @@ class ReportApp(tk.Tk):
         brand=tk.Frame(self,bg=BRAND_DARK,height=72); brand.pack(fill="x"); brand.pack_propagate(False); left=tk.Frame(brand,bg=BRAND_DARK); left.pack(side="left",padx=22,pady=10); tk.Label(left,text="Departamento de Engenharia",bg=BRAND_DARK,fg="white",font=(UI_FONT,13,"bold")).pack(anchor="w"); tk.Label(left,text="S.O.S — Sistema de Ordens de Manutenção  •  Relatório Fotográfico",bg=BRAND_DARK,fg="#D8EAE2",font=(UI_FONT,8)).pack(anchor="w"); tk.Label(brand,text="YURI CESAR",bg=BRAND_DARK,fg="white",font=(UI_FONT,9,"bold")).pack(side="right",padx=22); tk.Frame(self,bg=BRAND_ACCENT,height=3).pack(fill="x")
         outer=ttk.Frame(self,style="App.TFrame",padding=(26,22)); outer.pack(fill="both",expand=True); head=ttk.Frame(outer,style="App.TFrame"); head.pack(fill="x",pady=(0,12)); tk.Label(head,text="▣",bg=BRAND_DARK,fg="white",font=(UI_FONT,14,"bold"),width=3,height=1).pack(side="left",padx=(0,10)); tb=ttk.Frame(head,style="App.TFrame"); tb.pack(side="left"); ttk.Label(tb,text="Relatório Fotográfico",style="Title.TLabel").pack(anchor="w"); ttk.Label(tb,text="Gere relatórios em Word (.docx) no padrão do Relatório de Visita Técnica.",style="Subtitle.TLabel").pack(anchor="w",pady=(2,0))
         body=ttk.Frame(outer,style="App.TFrame"); body.pack(fill="both",expand=True); body.columnconfigure(0,weight=1); body.columnconfigure(1,weight=1); body.rowconfigure(0,weight=1)
-        data=self._card(body,"Dados do Relatório","Preencha as informações do cabeçalho.",0,0); data.columnconfigure(0,weight=1); data.columnconfigure(1,weight=1)
-        self.vars={k:tk.StringVar() for k in ["company","title","inspector","date","location"]}
-        fields=[("Nome da Empresa","company","Ex: Prefeitura / Empresa"),("Título do Relatório","title","Ex: Relatório de Visita Técnica"),("Inspetor","inspector","Ex: João da Silva"),("Data","date","Ex: 10/09/2026")]
-        for i,(label,key,ph) in enumerate(fields):
-            r,c=(i//2)*2,i%2; ttk.Label(data,text=label,style="Field.TLabel").grid(row=r,column=c,sticky="w",padx=4,pady=(4,5)); e=ttk.Entry(data,textvariable=self.vars[key]); e.grid(row=r+1,column=c,sticky="ew",padx=4,pady=(0,9)); self._add_placeholder(e,ph)
-        ttk.Label(data,text="Local",style="Field.TLabel").grid(row=6,column=0,sticky="w",padx=4,pady=(2,5)); e=ttk.Entry(data,textvariable=self.vars["location"]); e.grid(row=7,column=0,columnspan=2,sticky="ew",padx=4,pady=(0,3)); self._add_placeholder(e,"Ex: Parque Hugo Reis")
+        data=self._card(body,"Dados do Relatório","Informe a data e o nome da obra que aparecerão no relatório.",0,0); data.columnconfigure(0,weight=1); data.columnconfigure(1,weight=1)
+        self.vars={k:tk.StringVar() for k in ["date","obra"]}
+        ttk.Label(data,text="Data",style="Field.TLabel").grid(row=0,column=0,sticky="w",padx=4,pady=(4,5))
+        e=ttk.Entry(data,textvariable=self.vars["date"]); e.grid(row=1,column=0,sticky="ew",padx=4,pady=(0,9)); self._add_placeholder(e,"Ex: 25/09/2026")
+        ttk.Label(data,text="Nome da Obra",style="Field.TLabel").grid(row=0,column=1,sticky="w",padx=4,pady=(4,5))
+        e=ttk.Entry(data,textvariable=self.vars["obra"]); e.grid(row=1,column=1,sticky="ew",padx=4,pady=(0,9)); self._add_placeholder(e,"Ex: Reforma da Escola Municipal")
+        data.rowconfigure(2,weight=1)
         photo=self._card(body,"Fotos","JPG ou PNG. As imagens são ajustadas proporcionalmente, sem distorção.",0,1); photo.columnconfigure(0,weight=1); ttk.Button(photo,text="▧  Selecionar Fotos",style="Primary.TButton",command=self.select_photos).grid(row=0,column=0,sticky="w",pady=(0,10)); self.photo_count_label=ttk.Label(photo,text="Nenhuma foto selecionada",style="CardText.TLabel"); self.photo_count_label.grid(row=0,column=1,sticky="e",padx=(10,0))
         lf=ttk.Frame(photo,style="Card.TFrame"); lf.grid(row=1,column=0,columnspan=2,sticky="nsew"); lf.columnconfigure(0,weight=1); lf.rowconfigure(0,weight=1); self.photo_list=tk.Listbox(lf,height=13,borderwidth=0,highlightthickness=0,bg="#FFFFFF",fg=BRAND_TEXT,selectbackground="#DDEBE4",selectforeground=BRAND_DARK,activestyle="none",font=(UI_FONT,9)); self.photo_list.grid(row=0,column=0,sticky="nsew"); sb=ttk.Scrollbar(lf,orient="vertical",command=self.photo_list.yview); sb.grid(row=0,column=1,sticky="ns"); self.photo_list.configure(yscrollcommand=sb.set)
         layout=self._card(body,"Layout da Página","4 fotos por página reproduz o padrão do PDF de referência.",1,0); layout.columnconfigure(0,weight=1); layout.columnconfigure(1,weight=1); self.layout_var=tk.IntVar(value=4)
@@ -214,7 +212,7 @@ class ReportApp(tk.Tk):
             if not entry.get():entry.insert(0,text);entry.configure(foreground=BRAND_MUTED)
         entry.bind("<FocusIn>",focus_in); entry.bind("<FocusOut>",focus_out)
     def _real_value(self,key):
-        v=self.vars[key].get(); placeholders={"company":"Ex: Prefeitura / Empresa","title":"Ex: Relatório de Visita Técnica","inspector":"Ex: João da Silva","date":"Ex: 10/09/2026","location":"Ex: Parque Hugo Reis"}; return "" if v==placeholders.get(key) else v
+        v=self.vars[key].get(); placeholders={"date":"Ex: 25/09/2026","obra":"Ex: Reforma da Escola Municipal"}; return "" if v==placeholders.get(key) else v
     def select_photos(self):
         files=filedialog.askopenfilenames(title="Selecionar fotos",filetypes=[("Imagens", "*.jpg *.jpeg *.png"), ("JPG", "*.jpg *.jpeg"), ("PNG", "*.png")])
         if not files:return
@@ -226,7 +224,7 @@ class ReportApp(tk.Tk):
         if not self.photos:messagebox.showwarning(APP_TITLE,"Selecione pelo menos uma foto.");return
         out=filedialog.asksaveasfilename(title="Salvar Relatório",defaultextension=".docx",filetypes=[("Documento Word", "*.docx")],initialfile="Relatorio_Fotografico.docx")
         if not out:return
-        data=ReportData(self._real_value("company"),self._real_value("title") or "Relatório de Visita Técnica",self._real_value("inspector"),self._real_value("date"),self._real_value("location") or "Local não informado",self.layout_var.get(),self.photos.copy())
+        data=ReportData(self._real_value("date"),self._real_value("obra") or "Nome da obra não informado",self.layout_var.get(),self.photos.copy())
         self.generating=True; self.generate_button.state(["disabled"]); self.progress["value"]=0; self.progress_label.config(text="Iniciando...")
         threading.Thread(target=self._worker,args=(data,out),daemon=True).start()
     def _worker(self,data,out):
